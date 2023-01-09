@@ -1,0 +1,91 @@
+//MODELL
+//KODE GENERATE BIASA(TANPA JOIN)
+
+//KODE CLASS
+public function generatemsclasscode()
+  {
+    $this->db->select('RIGHT(ass_msclass.kode_class,2) as kode_class', FALSE);
+    $this->db->order_by('kode_class', 'DESC');
+    $this->db->limit(1);
+    $query = $this->db->get('ass_msclass');  //cek dulu apakah ada sudah ada kode di tabel.    
+    if ($query->num_rows() <> 0) {
+      //cek kode jika telah tersedia    
+      $data = $query->row();
+      $kode = intval($data->kode_class) + 1;
+    } else {
+      $kode = 1;  //cek jika kode belum terdapat pada table
+    }
+    $kodetampil = $kode;  //format kode
+    return $kodetampil;
+  }
+  
+  
+  //KODE SUBCLASS
+  
+  public function generatesubclasscode($kode_class)
+  {
+    $this->db->select('RIGHT(ass_mssubclass.kode_subclass,1) as kode_subclass', FALSE);
+    $this->db->where('kode_class', $kode_class);
+    $this->db->order_by('kode_subclass', 'DESC');
+    $this->db->limit(1);
+    $query = $this->db->get('ass_mssubclass');
+    if ($query->num_rows() <> 0) {
+      $data = $query->row();
+      $kode = substr($data->kode_subclass, -1) + 1;
+    } else {
+      $kode = 1;
+    }
+    $kodetampil =  $kode_class . $kode;
+    return $kodetampil;
+  }
+  
+  //KODE KATEGORI
+  public function generatekodekatategori($kode_subclass)
+  {
+    $this->db->select('RIGHT(ass_mskategori.kode_kategori,3) as kode_kategori', FALSE);
+    $this->db->where('kode_subclass', $kode_subclass);
+    $this->db->order_by('kode_kategori', 'DESC');
+    $this->db->limit(1);
+    $query = $this->db->get('ass_mskategori');  //cek dulu apakah ada sudah ada kode di tabel.    
+    if ($query->num_rows() <> 0) {
+      //cek kode jika telah tersedia    
+      $data = $query->row();
+      // $kode = intval($data->kode_class) + 1;
+      //cara mengambil digit dari kode kode sub class dari belakang
+      $kode = substr($data->kode_kategori, -3) + 1;
+    } else {
+      $kode = 1;  //cek jika kode belum terdapat pada table
+    }
+    // $tgl = date('ym');
+    $batas = sprintf("%03d", $kode);
+    $kodetampil =  $kode_subclass . $batas;  //format kode
+
+    return $kodetampil;
+  }
+  
+  //KODE SUBKATEGORI
+  public function generatekodesubkat($kode_kategori, $merk, $kode_warna)
+  {
+    $merek = strtoupper(substr($merk, 0, 2));
+    $this->db->select('RIGHT(ass_mssubkategori.kode_subkategori,3) as kode_subkategori', FALSE);
+    $this->db->where('kode_kategori', $kode_kategori);
+    $this->db->where('SUBSTRING(merk,1,2)', $merek);
+    $this->db->where('kode_warna', $kode_warna);
+    $this->db->order_by('kode_subkategori', 'DESC');
+    $this->db->limit(1);
+    $query = $this->db->get('ass_mssubkategori');  //cek dulu apakah ada sudah ada kode di tabel.    
+    if ($query->num_rows() <> 0) {
+      //cek kode jika telah tersedia    
+      $data = $query->row();
+      // $kode = intval($data->kode_class) + 1;
+      //cara mengambil digit dari kode kode sub class dari belakang
+      $kode = substr($data->kode_subkategori, -3) + 1;
+    } else {
+      $kode = 1;  //cek jika kode belum terdapat pada table
+    }
+    // $tgl = date('ym');
+    $batas = sprintf("%03d", $kode);
+    $kodetampil =  $kode_kategori . $merek . $kode_warna . $batas;  //format kode
+    // var_dump($kodetampil); die();
+    return $kodetampil;
+  }
